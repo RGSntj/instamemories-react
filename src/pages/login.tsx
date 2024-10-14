@@ -26,7 +26,7 @@ export function Login() {
               <Label className="flex items-center gap-1" htmlFor="senha">
                 <KeyRound className="size-4" /> Senha
               </Label>
-              <Input placeholder="******" id="senha" type="email" />
+              <Input placeholder="******" id="senha" type="password" />
 
               <Button className="uppercase bg-lime-400 hover:bg-lime-500 transition-all text-zinc-950">
                 Entrar

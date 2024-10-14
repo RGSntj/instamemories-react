@@ -83,7 +83,7 @@ export function App() {
                 </div>
 
                 <DialogFooter>
-                  <Button className="uppercase bg-lime-400 hover:bg-lime-500 text-black font-normal">
+                  <Button className="uppercase bg-yellow-300 hover:bg-yellow-400 text-black font-normal">
                     Registrar
                   </Button>
                 </DialogFooter>
