@@ -12,9 +12,13 @@ import { Label } from "@/components/ui/label";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
+import { useNavigate } from "react-router-dom";
+
 export function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+
+  const navigate = useNavigate();
 
   async function login() {
     try {
@@ -24,6 +28,16 @@ export function Login() {
       });
 
       localStorage.setItem("token", response.data.token);
+
+      api.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${response.data.token}`;
+
+      toast.success("Login realizado com sucesso !", {
+        position: "top-right",
+      });
+
+      navigate("/");
     } catch (error) {
       if (error instanceof AxiosError) {
         const { erro } = error.response?.data as { erro: string };
