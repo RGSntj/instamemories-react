@@ -33,6 +33,7 @@ import { api } from "./service/api";
 import { AxiosError } from "axios";
 import { IUsuario } from "./types/IUsuario";
 import { IMemorias } from "./types/IMemorias";
+import toast from "react-hot-toast";
 
 export function App() {
   const [usuario, setUsuario] = useState<IUsuario | null>(null);
@@ -45,6 +46,8 @@ export function App() {
 
   const [modalRecordacaoAberto, setModalRecordacaoAberto] = useState(false);
 
+  const navigate = useNavigate();
+
   function abrirCard() {
     setCardAberto(!cardAberto);
   }
@@ -53,7 +56,41 @@ export function App() {
     setModalRecordacaoAberto(true);
   }
 
-  const navigate = useNavigate();
+  async function salvarMemoria() {
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        "/diario",
+        {
+          conteudo,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Memória salva com sucesso!", {
+        position: "top-right",
+      });
+
+      setModalRecordacaoAberto(false);
+
+      buscarMemorias();
+    } catch (error) {
+      toast.error("Ocorreu um erro ao salvar a recordação", {
+        position: "top-right",
+      });
+    }
+  }
+
+  function lidarComSaida() {
+    localStorage.removeItem("token");
+
+    return navigate("/login");
+  }
 
   useEffect(() => {
     async function verificarUsuarioLogado() {
@@ -81,27 +118,27 @@ export function App() {
     verificarUsuarioLogado();
   }, []);
 
-  useEffect(() => {
-    async function buscarMemorias() {
-      try {
-        const token = localStorage.getItem("token");
+  async function buscarMemorias() {
+    try {
+      const token = localStorage.getItem("token");
 
-        const response = await api.get("/diarios", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const response = await api.get("/diarios", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        setMemorias(response.data);
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          console.log(error);
+      setMemorias(response.data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error);
 
-          if (error.response?.status === 401) navigate("/login");
-        }
+        if (error.response?.status === 401) navigate("/login");
       }
     }
+  }
 
+  useEffect(() => {
     buscarMemorias();
   }, []);
 
@@ -157,7 +194,10 @@ export function App() {
                 </div>
 
                 <DialogFooter>
-                  <Button className="uppercase bg-yellow-300 hover:bg-yellow-400 text-black font-normal">
+                  <Button
+                    onClick={salvarMemoria}
+                    className="uppercase bg-yellow-300 hover:bg-yellow-400 text-black font-normal"
+                  >
                     Registrar
                   </Button>
                 </DialogFooter>
@@ -175,7 +215,10 @@ export function App() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Meu perfil</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600 ">
+              <DropdownMenuItem
+                onClick={lidarComSaida}
+                className="text-red-600 "
+              >
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>
